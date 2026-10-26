@@ -401,6 +401,12 @@
   .counter-btn:active{
     transform:scale(0.96);
   }
+  .last-date{
+    margin-top:8px;
+    font-size:10px;
+    letter-spacing:0.05em;
+    color:var(--steel);
+  }
   .counter-num-clickable{
     cursor:pointer;
     transition:color .15s, transform .1s;
@@ -653,11 +659,13 @@
           <div class="counter-label">Gegrillt</div>
           <div class="counter-num counter-num-clickable" id="grillCount" title="Antippen zum Zurücksetzen um 1">0</div>
           <button class="counter-btn" id="grillPlus">+1</button>
+          <div class="last-date" id="grillLastDate">–</div>
         </div>
         <div class="counter-box">
           <div class="counter-label">Pizza gemacht</div>
           <div class="counter-num counter-num-clickable" id="pizzaCount" title="Antippen zum Zurücksetzen um 1">0</div>
           <button class="counter-btn" id="pizzaPlus">+1</button>
+          <div class="last-date" id="pizzaLastDate">–</div>
         </div>
       </div>
       <div class="counter-hint">Zahl antippen, um einen Tipp rückgängig zu machen</div>
@@ -684,6 +692,7 @@
           <div class="counter-label">Frittiert</div>
           <div class="counter-num counter-num-clickable" id="fryCount" title="Antippen zum Zurücksetzen um 1">0</div>
           <button class="counter-btn" id="fryPlus">+1</button>
+          <div class="last-date" id="fryLastDate">–</div>
         </div>
       </div>
       <div class="counter-hint">Zahl antippen, um einen Tipp rückgängig zu machen</div>
@@ -711,7 +720,7 @@
   </div>
 
   <div class="stamp" id="syncStamp">Haushalts-Daten werden geräteübergreifend geteilt</div>
-  <div class="version-tag">v1.0</div>
+  <div class="version-tag">v1.1</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1156,7 +1165,25 @@ function undoUsage(type){
   renderStats();
 }
 
+function formatDateDE(iso){
+  const [y,m,d] = iso.split('-');
+  return d + '.' + m + '.' + y;
+}
+
+function updateLastDates(){
+  const grillLastDate = document.getElementById('grillLastDate');
+  const pizzaLastDate = document.getElementById('pizzaLastDate');
+  const fryLastDate = document.getElementById('fryLastDate');
+  const latest = {};
+  usageLog.forEach(e => { latest[e.type] = e.date; });
+  grillLastDate.textContent = latest.grill ? 'Zuletzt: ' + formatDateDE(latest.grill) : '–';
+  pizzaLastDate.textContent = latest.pizza ? 'Zuletzt: ' + formatDateDE(latest.pizza) : '–';
+  fryLastDate.textContent = latest.fry ? 'Zuletzt: ' + formatDateDE(latest.fry) : '–';
+}
+
 function renderStats(){
+  updateLastDates();
+
   if(usageLog.length === 0){
     statYears.innerHTML = '<div class="stat-empty">Noch keine Einträge — nutze die +1 Buttons oben.</div>';
     statTotalGrill.textContent = '0';
